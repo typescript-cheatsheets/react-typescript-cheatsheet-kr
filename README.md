@@ -172,8 +172,6 @@ const App: React.FunctionComponent<{ message: string }> = ({ message }) => <div>
 
 - `React.FunctionComponent`는 return type을 명시적으로 밝힙니다. 하지만 일반적인 함수 버전은 암시적입니다(또는 추가적인 어노테이션(annotation)이 필요합니다).
 
-- `React.FunctionComponent` is explicit about the return type, while the normal function version is implicit (or else needs additional annotation).
-
 - `displayName`, `propTypes`, 그리고 `defaultProps`와 같은 static properties를 위한 자동완성(autocomplete)과 타입 체크(Typechecking)를 지원합니다.
 
   - `React.FunctionComponent`와 함께 `defaultProps`을 사용하는데 몇 가지 알려진 문제가 있습니다. [문제에 대한 자세한 내용](https://github.com/typescript-cheatsheets/react/issues/87)을 확인하세요. 우리는 개발자님이 찾아볼 수 있는 별개의 `defaultProps` 섹션을 제공하고 있습니다.
