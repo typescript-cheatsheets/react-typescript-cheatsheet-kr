@@ -129,3 +129,60 @@ Manual setup:
 </a>
 
 <!--END-SECTION:setup-->
+
+### Section 2: 시작하기
+
+<!--START-SECTION:function-components-->
+
+#### 함수 컴포넌트
+
+함수 컴포넌트는 `props`를 매개변수로 받고 JSX element를 반환하는 일반적인 함수로 작성될 수 있습니다.
+
+```tsx
+// props의 타입 정의 - 더 많은 예시는 "컴포넌트 Props 타이핑"에서 확인할 수 있습니다.
+type AppProps = {
+  message: string;
+}; /* export 한다면 consumer가 extend할 수 있도록 `interface`를 사용하세요. */
+
+// 함수 컴포넌트를 정의할 수 있는 가장 쉬운 방법; return type은 추론됩니다.
+const App = ({ message }: AppProps) => <div>{message}</div>;
+
+// 실수로 다른 타입을 반환하였을 때 에러가 raise 되도록 return type을 명시할 수 있습니다.
+const App = ({ message }: AppProps): JSX.Element => <div>{message}</div>;
+
+// type 선언을 함수 컴포넌트 선언에 포함시킬 수 있습니다.;이 방법은 prop types에 이름을 붙이지 않아도 되지만 코드가 반복됩니다.
+const App = ({ message }: { message: string }) => <div>{message}</div>;
+```
+
+> Tip: type destructure 선언을 위해 [Paul Shen's VS Code Extension](https://marketplace.visualstudio.com/items?itemName=paulshen.paul-typescript-toolkit)를 사용할 수도 있습니다. ([keyboard shortcut](https://twitter.com/_paulshen/status/1392915279466745857?s=20)을 추가 하세요.)
+
+<details>
+
+<summary><b><code>React.FC</code>가 권장되지 않는 이유는 무엇일까요? <code>React.FunctionComponent</code>/<code>React.VoidFunctionComponent</code>는 어떤가요?</b></summary>
+
+React+TypeScript codebases에서 다음 보았을 수 있습니다.
+
+```tsx
+const App: React.FunctionComponent<{ message: string }> = ({ message }) => <div>{message}</div>;
+```
+
+하지만, 현재 `React.FunctionComponent` (또는 간략하게 써서 `React.FC`)는 [권장되지 않는다는 것](https://github.com/facebook/create-react-app/pull/8177)에 대부분의 사람들이 동의합니다. 물론 이 주제에 대한 미묘한 의견 차이가 있을 수는 있지만, 만약 이 의견에 동의하고 `React.FC`를 당신의 코드베이스에서 제거하고 싶다면, [이 jscodeshift codemond](https://github.com/gndelia/codemod-replace-react-fc-typescript)를 사용할 수 있습니다.
+
+"일반적인 함수" 버전과의 차이점들은 다음과 같습니다.
+
+- `React.FunctionComponent`는 return type을 명시적으로 밝힙니다. 하지만 일반적인 함수 버전은 암시적입니다(또는 추가적인 어노테이션(annotation)이 필요합니다).
+
+- `React.FunctionComponent` is explicit about the return type, while the normal function version is implicit (or else needs additional annotation).
+
+- `displayName`, `propTypes`, 그리고 `defaultProps`와 같은 static properties를 위한 자동완성(autocomplete)과 타입 체크(Typechecking)를 지원합니다.
+
+  - `React.FunctionComponent`와 함께 `defaultProps`을 사용하는데 몇 가지 알려진 문제가 있습니다. [문제에 대한 자세한 내용](https://github.com/typescript-cheatsheets/react/issues/87)을 확인하세요. 우리는 개발자님이 찾아볼 수 있는 별개의 `defaultProps` 섹션을 제공하고 있습니다.
+
+- [React 18 type 업데이트](https://github.com/DefinitelyTyped/DefinitelyTyped/pull/56210) 이전에는, `React.FunctionComponent`이 `children`에 대한 암시적인 정의(implicit definition)를 제공했었습니다. 이것은 열띤 토론 과정을 거쳤고 결과적으로 [`React.FC`가 Create React App TypeScript template에서 제거](https://github.com/facebook/create-react-app/pull/8177)된 이유 중 하나가 되었습니다.
+
+```tsx
+// React 18 types 이전
+const Title: React.FunctionComponent<{ title: string }> = ({ children, title }) => (
+  <div title={title}>{children}</div>
+);
+```
