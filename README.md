@@ -67,7 +67,7 @@ TypeScript에 입문하는 React 개발자를 위한 치트시트(Cheetsheets)
 #### 시작하기 전 필요한 사항
 
 1. [React](https://reactjs.org)에 대한 충분한 이해
-2. [TypeScript Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html) ([2ality's guide](http://2ality.com/2018/04/type-notation-typescript.html)를 알고있으면 문서를 이해하는데 도움이 됩니다. 만약 TypeScript를 처음 접하는 분이라면,[chibicode’s tutorial](https://ts.chibicode.com/todo/).)를 참고해 보세요.
+2. [TypeScript Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)주제에 대한 이해 ([2ality's guide](http://2ality.com/2018/04/type-notation-typescript.html)를 알고있으면 문서를 이해하는데 도움이 됩니다. 만약 TypeScript를 처음 접하는 분이라면,[chibicode’s tutorial](https://ts.chibicode.com/todo/)를 참고해 보세요.)
 3. [the TypeScript section in the official React docs](https://reactjs.org/docs/static-type-checking.html#typescript) 읽기
 4. [the React section of the new TypeScript playground](http://www.typescriptlang.org/play/index.html?jsx=2&esModuleInterop=true&e=181#example/typescript-with-react) 읽기 (선택사항: [the playground's](http://www.typescriptlang.org/play/index.html) Example Section의 40+ examples 단계를 수행해 보기)
 
