@@ -189,7 +189,7 @@ const Title: React.FunctionComponent<{ title: string }> = ({ children, title }) 
 <summary>(Deprecated)<b><code>React.VoidFunctionComponent</code> 또는 <code>React.VFC</code> 사용하기</b></summary>
 
 [@types/react 16.9.48](https://github.com/DefinitelyTyped/DefinitelyTyped/pull/46643)에서, `React.VoidFunctionComponent` 또는 `React.VFC` type은 `children`을 명시적으로 타이핑(typing) 하기 위해 추가되었습니다.
-하지만, `React.VFC`와 `React.VoidFunctionComponent`는 React 18 (https://github.com/DefinitelyTyped/DefinitelyTyped/pull/59882)에서 더이상 사용되지 않게 되었습니다(deprecated). 따라서 이 임시방편은 React 18+ 에서 더이상 권장되지 않습니다.
+하지만, `React.VFC`와 `React.VoidFunctionComponent`는 React 18 (https://github.com/DefinitelyTyped/DefinitelyTyped/pull/59882) 에서 더이상 사용되지 않게 되었습니다(deprecated). 따라서 이 임시방편은 React 18+ 에서 더이상 권장되지 않습니다.
 
 일반적인 함수 컴포넌트나 `React.FC`를 사용해 주세요.
 
