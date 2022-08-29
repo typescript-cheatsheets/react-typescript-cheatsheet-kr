@@ -184,3 +184,75 @@ const Title: React.FunctionComponent<{ title: string }> = ({ children, title }) 
   <div title={title}>{children}</div>
 );
 ```
+
+<details>
+<summary>(Deprecated)<b><code>React.VoidFunctionComponent</code> 또는 <code>React.VFC</code> 사용하기</b></summary>
+
+[@types/react 16.9.48](https://github.com/DefinitelyTyped/DefinitelyTyped/pull/46643)에서, `React.VoidFunctionComponent` 또는 `React.VFC` type은 `children`을 명시적으로 타이핑(typing) 하기 위해 추가되었습니다.
+하지만, `React.VFC`와 `React.VoidFunctionComponent`는 React 18 (https://github.com/DefinitelyTyped/DefinitelyTyped/pull/59882)에서 더이상 사용되지 않게 되었습니다(deprecated). 따라서 이 임시방편은 React 18+ 에서 더이상 권장되지 않습니다.
+
+일반적인 함수 컴포넌트나 `React.FC`를 사용해 주세요.
+
+```ts
+type Props = { foo: string };
+
+// 지금은 괜찮지만, 미래에는 에러를 발생시킬 것입니다.
+const FunctionComponent: React.FunctionComponent<Props> = ({ foo, children }: Props) => {
+  return (
+    <div>
+      {foo} {children}
+    </div>
+  ); // OK
+};
+
+// 지금은 에러를 발생시키고, 미래에는 더이상 사용되지 않을것입니다.(Deprecated)
+const VoidFunctionComponent: React.VoidFunctionComponent<Props> = ({ foo, children }) => {
+  return (
+    <div>
+      {foo}
+      {children}
+    </div>
+  );
+};
+```
+
+</details>
+
+- _미래에는_, props를 자동으로 `readonly` 라고 표시할 수도 있습니다. 하지만, props 객체가 파라미터 리스트에서 destructure 된다면, 이것은 의미없는 행동 입니다.
+
+대부분의 경우에는 어떤 syntax를 사용하던지 큰 차이가 없지만, `React.FunctionComponent`의 보다 명시적인 특성을 선호하는 것이 좋을것입니다.
+
+</details>
+
+<details>
+<summary><b>주의해야 할 사항</b></summary>
+
+다음의 패턴은 지원되지 않습니다. :
+
+**조건부 렌더링(conditional rendering)**
+
+```tsx
+const MyConditionalComponent = ({ shouldRender = false }) => (shouldRender ? <div /> : false); // JS 에서도 이렇게 하지 마십시오.
+const el = <MyConditionalComponent />; // 에러를 throw 합니다.
+```
+
+이 패턴이 지원되지 않는 이유는 컴파일러의 한계 때문입니다. 함수 컴포넌트는 JSX expression 또는 `null` 이외의 다른 어떤 것도 반환할 수 없습니다. 반환할 수 없는 것이 반환된다면 해당 타입은 `Element`에 할당될 수 없다는 에러 메세지를 보게될 것입니다. ("{the other type} is not assignable to `Element`.")
+
+**Array.fill**
+
+```tsx
+const MyArrayComponent = () => Array(5).fill(<div />);
+const el2 = <MyArrayComponent />; // throws an error
+```
+
+아쉽게도 함수의 타입을 annotate 하는 것은 아무런 도움이 되지 않을것입니다. React가 지원하는 다른 특별한 타입(exotic type)을 반환하고자 한다면 타입 표명(type assertion)을 수행해야 합니다. :
+
+```tsx
+const MyArrayComponent = () => Array(5).fill(<div />) as any as JSX.Element;
+```
+
+[여기서 @ferdaber 의 설명을 확인해보세요](https://github.com/typescript-cheatsheets/react/issues/57).
+
+</details>
+
+<!--END-SECTION:function-components-->
