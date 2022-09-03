@@ -256,3 +256,93 @@ const MyArrayComponent = () => Array(5).fill(<div />) as any as JSX.Element;
 </details>
 
 <!--END-SECTION:function-components-->
+
+<!--START-SECTION:hooks-->
+
+#### Hooks
+
+Hook은 [`@types/react` v16.8 이상부터 지원됩니다](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/a05cc538a42243c632f054e42eab483ebf1560ab/types/react/index.d.ts#L800-L1031).
+
+#### useState
+
+타입 추론(Type inference)은 간단한 값들에 잘 작동합니다:
+
+```tsx
+const [state, setState] = useState(false);
+// `state` 는 boolean 으로 추론됩니다.
+// `setState` 는 boolean 값 만을 받습니다.
+```
+
+타입 추론에 복잡한 타입을 사용해야 한다면 [추론된 타입(Inferred Types) 사용하기](https://react-typescript-cheatsheet.netlify.app/docs/basic/troubleshooting/types/#using-inferred-types) 도 확인해보세요.
+
+하지만 많은 hook 들은 null 같은 값를 디폴트 값으로 초기화 하기 때문에 어떻게 타입을 지정하는지 궁금할 수 있습니다. 명시적으로 타입을 선언하고, union type을 사용하세요.:
+
+```tsx
+const [user, setUser] = useState<User | null>(null);
+
+// later...
+setUser(newUser);
+```
+
+만약 useState설정 직후에 state가 초기화되고 그 이후에 항상 값을 가진다면, 타입 표명(type assertions)을 사용할 수도 있습니다.
+
+```tsx
+const [user, setUser] = useState<User>({} as User);
+
+// later...
+setUser(newUser);
+```
+
+이 방법은 일시적으로 타입스크립트 컴파일러에게 `{}`가 `User`의 type이라고 "거짓말" 합니다. 그 후에 `user` state를 설정하여야 합니다. 그렇지 않으면 나머지 코드가 `user`는 `User` 타입이라는 사실에 의존고 이것은 런타입 에러로 이어질 수 있습니다.
+
+#### useReducer
+
+Reducer actions를 위해 [Discriminated Unions](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html#discriminated-unions)를 사용할 수 있습니다. reducer의 return type을 정의하는 것을 잊지 마세요. 그렇지 않으면 타입스크립트가 return type을 추론할 것입니다.
+
+```tsx
+import { useReducer } from "react";
+
+const initialState = { count: 0 };
+
+type ACTIONTYPE = { type: "increment"; payload: number } | { type: "decrement"; payload: string };
+
+function reducer(state: typeof initialState, action: ACTIONTYPE) {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + action.payload };
+    case "decrement":
+      return { count: state.count - Number(action.payload) };
+    default:
+      throw new Error();
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({ type: "decrement", payload: "5" })}>-</button>
+      <button onClick={() => dispatch({ type: "increment", payload: 5 })}>+</button>
+    </>
+  );
+}
+```
+
+[TypeScript Playground에서 보기](https://www.typescriptlang.org/play?#code/LAKFEsFsAcHsCcAuACAVMghgZ2QJQKYYDGKAZvLJMgOTyEnUDcooRsAdliuO+IuBgA2AZUQZE+ZAF5kAbzYBXdogBcyAAwBfZmBCIAntEkBBAMIAVAJIB5AHLmAmgAUAotOShkyAD5zkBozVqHiI6SHxlagAaZGgMfUFYDAATNXYFSAAjfHhNDxAvX1l-Q3wg5PxQ-HDImLiEpNTkLngeAHM8ll1SJRJwDmQ6ZIUiHIAKLnEykqNYUmQePgERMQkY4n4ONTMrO0dXAEo5T2aAdz4iAAtkMY3+9gA6APwj2ROvImxJYPYqmsRqCp3l5BvhEAp4Ow5IplGpJhIHjCUABqTB9DgPeqJFLaYGfLDfCp-CIAoEFEFeOjgyHQ2BKVTNVb4RF05TIAC0yFsGWy8Fu6MeWMaB1x5K8FVIGAUglUwK8iEuFFOyHY+GVLngFD5Bx0Xk0oH13V6myhplZEm1x3JbE4KAA2vD8DFkuAsHFEFcALruAgbB4KAkEYajPlDEY5GKLfhCURTHUnKkQqFjYEAHgAfHLkGb6WpZI6WfTDRSvKnMgpEIgBhxTIJwEQANZSWRjI5SdPIF1u8RXMayZ7lSphEnRWLxbFNagAVmomhF6fZqYA9OXKxxM2KQWWK1WoTW643m63pB2u+7e-3SkEQsPamOGik1FO55p08jl6vdxuKcvv8h4yAmhAA)
+
+<details>
+
+<summary><b><code>Redux</code>에서 <code>Reducer</code>와 함께 사용하기</b></summary>
+
+Reducer funciton을 작성하기 위해 [redux](https://github.com/reduxjs/redux)를 사용하는 경우, return type을 처리하는 `Reducer<State, Action>` 형식의 편리한 helper를 사용할 수 있습니다.
+
+위의 reducer example은 다음과 같이 바뀔 수 있습니다. :
+
+```tsx
+import { Reducer } from 'redux';
+
+export function reducer: Reducer<AppState, Action>() {}
+```
+
+</details>
