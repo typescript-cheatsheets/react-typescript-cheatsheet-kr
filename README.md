@@ -346,3 +346,43 @@ export function reducer: Reducer<AppState, Action>() {}
 ```
 
 </details>
+
+#### useEffect / useLayoutEffect
+
+`userEffect`와 `userLayoutEffect` 둘 다 <b>side effect</b>를 수행하기 위해 사용되고 선택적으로 cleanup function을 반환합니다. 이것은 만약 이 hook들이 반환 값을 처리하지 않는다면, type이 필요 없다는 뜻입니다. `useEffect`를 사용할 때, 함수 또는 `undefined` 이외의 다른 것을 반환하지 않도록 주의하세요. 그렇지 않으면 TypeScript와 React는 당신에게 비명을 지를것입니다. Arros functions를 사용한다면 이 문제는 다소 파악하기 어려울 수 있습니다. :
+
+```ts
+function DelayedEffect(props: { timerMs: number }) {
+  const { timerMs } = props;
+
+  useEffect(
+    () =>
+      setTimeout(() => {
+        /* do stuff */
+      }, timerMs),
+    [timerMs]
+  );
+  // 나쁜 예시! setTimeout은 암묵적으로 숫자를 반환하고 있습니다.
+  // arrow function의 body가 중괄호로 감싸지지 않았기 때문입니다.
+  return null;
+}
+```
+
+<details>
+<summary><b>위 예시에 대한 해결책</b></summary>
+
+```tsx
+function DelayedEffect(props: { timerMs: number }) {
+  const { timerMs } = props;
+
+  useEffect(() => {
+    setTimeout(() => {
+      /* do stuff */
+    }, timerMs);
+  }, [timerMs]);
+  // 더 나은 방법; 확실하게 undefined를 반환하기 위해서 void keyword를 사용하세요.
+  return null;
+}
+```
+
+</details>
