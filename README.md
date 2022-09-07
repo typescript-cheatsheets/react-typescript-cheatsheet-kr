@@ -386,3 +386,77 @@ function DelayedEffect(props: { timerMs: number }) {
 ```
 
 </details>
+
+#### useRef
+
+TypeScript에서 `useRef`는 type argument가 초기 값을 완전히 포함(cover)하는지 아닌지에 따라[read-only](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/abd69803c1b710db58d511f4544ec1b70bc9077c/types/react/v16/index.d.ts#L1025-L1039)또는 [mutable](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/abd69803c1b710db58d511f4544ec1b70bc9077c/types/react/v16/index.d.ts#L1012-L1023) 둘 중 하나를 반환합니다. 각자의 use case에 맞는 것을 선택하세요.
+
+##### Option 1: DOM element ref
+
+**[DOM element에 접근하기 위해서는](https://reactjs.org/docs/refs-and-the-dom.html):** element type 만을 argument로 넘겨주고 `null`을 초기 값으로 사용하세요. 이 경우에, 반환되는 reference는 React에 의해 관리되는 read-only `.current`를 가질 것입니다. TypeScript는 이 ref를 element의 `ref` prop으로 전달 받기를 기대합니다. :
+
+```tsx
+function Foo() {
+  // - 가능한 상세하게 작성하세요. 예를들면, HTMLDivElement는 HTMLElement보다 더 좋고,
+  // Element보다는 훨신 더 좋은 선택입니다.
+  // - 기술적으로 말하자면, 이것은 RefObject<HTMLDivElement>를 반환합니다.
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // ref.current가 null일 수 있다는 것을 주의하세요.
+    // 이것은 당신이 조건에 따라서 ref된(ref-ed) element를 render하거나
+    // 할당하는 것을 잊을 수 있기 때문에 예측할 수 있는 현상입니다.
+    if (!divRef.current) throw Error("divRef is not assigned");
+
+    // 이제 divRef.current는 확실하게 HTMLDivElement 입니다.
+    doSomethingWith(divRef.current);
+  });
+
+  // React가 당신을 위해 ref를 관리할 수있도록 element에게 ref를 전달해 주세요.
+  return <div ref={divRef}>etc</div>;
+}
+```
+
+만약 `divRef.current`가 절대로 null이 아닐것이라는 것을 확신한다면, non-null assertion operator `!`을 사용하는 것도 가능합니다. :
+
+```tsx
+const divRef = useRef<HTMLDivElement>(null!);
+// 나중에... 이것이 null 인지 확인할 필요가 없습니다.
+doSomethingWith(divRef.current);
+```
+
+당신이 type safety가 보장된다고 미리 가정하고 코드를 작성한다는 것에 주의해야 합니다. 렌더링 과정에서 ref를 element에 할당하는 것을 잊거나, ref된(ref-ed) element가 조건부 렌더링 된다면 runtime error가 발생할 것입니다.
+
+<details>
+<summary><b>Tip: 어떤 <code>HTMLElement</code>를 사용할지 선택하기</b></summary>
+  
+Ref는 명시성(specificity)을 필요로 합니다. 즉, `HTMLElement` 만을 명시하는 것은 충분하지 않다는 말입니다. 만약 당신이 필요한 element type의 이름을 모른다면, [lib.dom.ts](https://github.com/microsoft/TypeScript/blob/v3.9.5/lib/lib.dom.d.ts#L19224-L19343)에서 확인하거나 의도적으로 type error를 발생시키고 language service가 type의 이름을 알려주도록 할 수 있습니다.
+
+![image](https://user-images.githubusercontent.com/6764957/116914284-1c436380-ac7d-11eb-9150-f52c571c5f07.png)
+
+</details>
+
+##### Option 2: Mutable value ref
+
+**[mutable value를 가지기 위해서는](https://reactjs.org/docs/hooks-faq.html#is-there-something-like-instance-variables):** 원하는 type을 사용하고 초기 값이 완전히 해당 type에 속하는지 확인하세요.
+
+```tsx
+function Foo() {
+  // 기술적으로 말하자면, 이것은 MutableRefObject<number | null>을 반환합니다.
+  const intervalRef = useRef<number | null>(null);
+
+  // 당신이 직접 ref를 관리합니다. (이것이 MutableRefObject라고 불리는 이유이죠.)
+  useEffect(() => {
+    intervalRef.current = setInterval(...);
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  // ref는 element의 "ref" prop으로 전달되지 않습니다.
+  return <button onClick={/* clearInterval the ref */}>Cancel timer</button>;
+}
+```
+
+##### 다음의 자료도 확인해 보세요.
+
+- [@rajivpunjabi가 작성한 관련 이슈](https://github.com/typescript-cheatsheets/react/issues/388) - [Playground](https://www.typescriptlang.org/play#code/JYWwDg9gTgLgBAKjgQwM5wEoFNkGN4BmUEIcARFDvmQNwCwAUI7hAHarwCCYYcAvHAAUASn4A+OAG9GjOHAD0CBLLnKGcxHABiwKBzgQwMYGxS4WUACbBWAczgwIcSxFwBXEFlYxkxtgDoVTQBJVmBjZAAbOAA3KLcsOAB3YEjogCNE1jc0-zgAGQBPG3tHOAAVQrAsAGVcKGAjOHTCuDdUErhWNgBabLSUVFQsWBNWA2qoX2hA9VU4AGFKXyx0AFk3H3TIxOwCOAB5dIArLHwgpHcoSm84MGJJmFbgdG74ZcsDVkjC2Y01f7yFQsdjvLAEACM-EwVBg-naWD2AB4ABLlNb5GpgZCsACiO083jEgn6kQAhMJ6HMQfpKJCFpE2IkBNg8HCEci0RisTj8VhCTBiaSKVSVIoAaoLnBQuFgFFYvFEikBpkujkMps4FgAB7VfCdLmY7F4gleOFwAByEHg7U63VYfXVg2Go1MhhG0ygf3mAHVUtF6jgYLtwUdTvguta4Bstjs9mGznCpVcbvB7u7YM90B8vj9vYgLkDqWxaeCAEzQ1n4eHDTnoo2801EknqykyObii5SmpnNifA5GMZmCzWOwOJwudwC3xjKUyiLROKRBLJf3NLJO9KanV64xj0koVifQ08k38s1Sv0DJZBxIx5DbRGhk6J5Nua5mu4PEZPOAvSNgsgnxsHmXZzIgRZyDSYIEAAzJWsI1k+BCovWp58gKcAAD5qmkQqtqKHbyCexoYRecw7IQugcAs76ptCdIQv4KZmoRcjyMRaGkU28A4aSKiUXAwwgpYtEfrcAh0mWzF0ax7bsZx3Lceetx8eqAlYPAMAABa6KJskSXAdKwTJ4kwGxCjyKy-bfK05SrDA8mWVagHAbZeScOY0CjqUE6uOgqDaRAOSfKqOYgb8KiMaZ9GSeCEIMkyMVyUwRHWYc7nSvAgUQEk6AjMQXpReWyWGdFLHeBZHEuTCQEZT8xVwaV8BxZCzUWZQMDvuMghBHASJVnCWhTLYApiH1chIqgxpGeCfCSIxAC+Yj3o+8YvvgSLyNNOLjeBGhTTNdLzVJy3reGMBbTtrB7RoB3XbNBAneCsHLatcbPhdV3GrdB1WYhw3IKNZq-W2DCLYRO7QPAljgsgORcDwVJAA)
+- [Stefan Baumgartner의 예시](https://fettblog.eu/typescript-react/hooks/#useref) - [Playground](https://www.typescriptlang.org/play/?jsx=2#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgIilQ3wFgAoCzAVwDsNgJa4AVJADxgElaxqYA6sBgALAGIQ01AM4AhfjCYAKAJRwA3hThwA9DrjBaw4CgA2waUjgB3YSLi1qp0wBo4AI35wYSZ6wCeYEgAymhQwGDw1lYoRHCmEBAA1oYA5nCY0HAozAASLACyADI8fDAAoqZIIEi0MFpwaEzS8IZllXAAvIjEMAB0MkjImAA8+cWl-JXVtTAAfEqOzioA3A1NtC1wTPIwirQAwuZoSV1wql1zGg3aenAt4RgOTqaNIkgn0g5ISAAmcDJvBA3h9TsBMAZeFNXjl-lIoEQ6nAOBZ+jddPpPPAmGgrPDEfAUS1pG5hAYvhAITBAlZxiUoRUqjU6m5RIDhOi7iIUF9RFYaqIIP9MlJpABCOCAUHJ0eDzm1oXAAGSKyHtUx9fGzNSacjaPWq6Ea6gI2Z9EUyVRrXV6gC+DRtVu0RBgxuYSnRIzm6O06h0ACpIdlfr9jExSQyOkxTP5GjkPFZBv9bKIDYSmbNpH04ABNFD+CV+nR2636kby+BETCddTlyo27w0zr4HycfC6L0lvUjLH7baHY5Jas7BRMI7AE42uYSUXed6pkY6HtMDulnQruCrCg2oA)
