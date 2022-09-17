@@ -460,3 +460,301 @@ function Foo() {
 
 - [@rajivpunjabi가 작성한 관련 이슈](https://github.com/typescript-cheatsheets/react/issues/388) - [Playground](https://www.typescriptlang.org/play#code/JYWwDg9gTgLgBAKjgQwM5wEoFNkGN4BmUEIcARFDvmQNwCwAUI7hAHarwCCYYcAvHAAUASn4A+OAG9GjOHAD0CBLLnKGcxHABiwKBzgQwMYGxS4WUACbBWAczgwIcSxFwBXEFlYxkxtgDoVTQBJVmBjZAAbOAA3KLcsOAB3YEjogCNE1jc0-zgAGQBPG3tHOAAVQrAsAGVcKGAjOHTCuDdUErhWNgBabLSUVFQsWBNWA2qoX2hA9VU4AGFKXyx0AFk3H3TIxOwCOAB5dIArLHwgpHcoSm84MGJJmFbgdG74ZcsDVkjC2Y01f7yFQsdjvLAEACM-EwVBg-naWD2AB4ABLlNb5GpgZCsACiO083jEgn6kQAhMJ6HMQfpKJCFpE2IkBNg8HCEci0RisTj8VhCTBiaSKVSVIoAaoLnBQuFgFFYvFEikBpkujkMps4FgAB7VfCdLmY7F4gleOFwAByEHg7U63VYfXVg2Go1MhhG0ygf3mAHVUtF6jgYLtwUdTvguta4Bstjs9mGznCpVcbvB7u7YM90B8vj9vYgLkDqWxaeCAEzQ1n4eHDTnoo2801EknqykyObii5SmpnNifA5GMZmCzWOwOJwudwC3xjKUyiLROKRBLJf3NLJO9KanV64xj0koVifQ08k38s1Sv0DJZBxIx5DbRGhk6J5Nua5mu4PEZPOAvSNgsgnxsHmXZzIgRZyDSYIEAAzJWsI1k+BCovWp58gKcAAD5qmkQqtqKHbyCexoYRecw7IQugcAs76ptCdIQv4KZmoRcjyMRaGkU28A4aSKiUXAwwgpYtEfrcAh0mWzF0ax7bsZx3Lceetx8eqAlYPAMAABa6KJskSXAdKwTJ4kwGxCjyKy-bfK05SrDA8mWVagHAbZeScOY0CjqUE6uOgqDaRAOSfKqOYgb8KiMaZ9GSeCEIMkyMVyUwRHWYc7nSvAgUQEk6AjMQXpReWyWGdFLHeBZHEuTCQEZT8xVwaV8BxZCzUWZQMDvuMghBHASJVnCWhTLYApiH1chIqgxpGeCfCSIxAC+Yj3o+8YvvgSLyNNOLjeBGhTTNdLzVJy3reGMBbTtrB7RoB3XbNBAneCsHLatcbPhdV3GrdB1WYhw3IKNZq-W2DCLYRO7QPAljgsgORcDwVJAA)
 - [Stefan Baumgartner의 예시](https://fettblog.eu/typescript-react/hooks/#useref) - [Playground](https://www.typescriptlang.org/play/?jsx=2#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgIilQ3wFgAoCzAVwDsNgJa4AVJADxgElaxqYA6sBgALAGIQ01AM4AhfjCYAKAJRwA3hThwA9DrjBaw4CgA2waUjgB3YSLi1qp0wBo4AI35wYSZ6wCeYEgAymhQwGDw1lYoRHCmEBAA1oYA5nCY0HAozAASLACyADI8fDAAoqZIIEi0MFpwaEzS8IZllXAAvIjEMAB0MkjImAA8+cWl-JXVtTAAfEqOzioA3A1NtC1wTPIwirQAwuZoSV1wql1zGg3aenAt4RgOTqaNIkgn0g5ISAAmcDJvBA3h9TsBMAZeFNXjl-lIoEQ6nAOBZ+jddPpPPAmGgrPDEfAUS1pG5hAYvhAITBAlZxiUoRUqjU6m5RIDhOi7iIUF9RFYaqIIP9MlJpABCOCAUHJ0eDzm1oXAAGSKyHtUx9fGzNSacjaPWq6Ea6gI2Z9EUyVRrXV6gC+DRtVu0RBgxuYSnRIzm6O06h0ACpIdlfr9jExSQyOkxTP5GjkPFZBv9bKIDYSmbNpH04ABNFD+CV+nR2636kby+BETCddTlyo27w0zr4HycfC6L0lvUjLH7baHY5Jas7BRMI7AE42uYSUXed6pkY6HtMDulnQruCrCg2oA)
+
+#### useImperativeHandle
+
+해당 [Stackoverflow answer](https://stackoverflow.com/a/69292925/5415299)에 따르면 다음과 같습니다.:
+
+```tsx
+// Countdown.tsx
+
+// forwardRef로 전달될 handle type을 정의합니다
+export type CountdownHandle = {
+  start: () => void;
+};
+
+type CountdownProps = {};
+
+const Countdown = forwardRef<CountdownHandle, CountdownProps>((props, ref) => {
+  useImperativeHandle(ref, () => ({
+    // start() 는 여기서 타입 추론(type inference) 됩니다
+    start() {
+      alert("Start");
+    },
+  }));
+
+  return <div>Countdown</div>;
+});
+```
+
+```tsx
+// 이 컴포는트는 Countdown 컴포넌트를 사용합니다
+
+import Countdown, { CountdownHandle } from "./Countdown.tsx";
+
+function App() {
+  const countdownEl = useRef<CountdownHandle>(null);
+
+  useEffect(() => {
+    if (countdownEl.current) {
+      // start()는 여기서도 타입 추론(type inference) 됩니다.
+      countdownEl.current.start();
+    }
+  }, []);
+
+  return <Countdown ref={countdownEl} />;
+}
+```
+
+##### 다음의 자료도 확인해보세요:
+
+- [ForwardRefRenderFunction 사용하기](https://stackoverflow.com/a/62258685/5415299)
+
+#### Custom Hooks
+
+만약 Custom Hook에서 array를 return한다면, array의 각 위치에서 각기 다른 type을 가지기를 원하겠지만 TypeScript는 union type으로 추론할 것이기 때문에 타입 추론을 피하고 싶을 것입니다. 이러한 상황에서 [TS 3.4 const assertions](https://devblogs.microsoft.com/typescript/announcing-typescript-3-4/#const-assertions)을 사용할 수 있습니다.
+
+```tsx
+import { useState } from "react";
+
+export function useLoading() {
+  const [isLoading, setState] = useState(false);
+  const load = (aPromise: Promise<any>) => {
+    setState(true);
+    return aPromise.finally(() => setState(false));
+  };
+  return [isLoading, load] as const; // (boolean | typeof load)[]이 아닌 [boolean, typeof load]으로 추론합니다.
+}
+```
+
+[TypeScript Playground에서 확인해 보기](https://www.typescriptlang.org/play/?target=5&jsx=2#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wFgAoCpAD0ljkwFcA7DYCZuRgZyQBkIKACbBmAcwAUASjgBvCnDhoO3eAG1g3AcNFiANHF4wAyjBQwkAXTgBeRMRgA6HklPmkEzCgA2vKQG4FJRV4b0EhWzgJFAAFHBBNJAAuODjcRIAeFGYATwA+GRs8uSDFIzcLCRgoRiQA0rgiGEYoTlj4xMdMUR9vHIlpW2Lys0qvXzr68kUAX0DpxqRm1rgNLXDdAzDhaxRuYOZVfzgAehO4UUwkKH21ACMICG9UZgMYHLAkCEw4baFrUSqVARb5RB5PF5wAA+cHen1BfykaksFBmQA)
+
+이런 방법으로, destructure했을 때 destructureg한 위치에 따라 올바른 type을 얻을 수 있습니다.
+
+<details>
+<summary><b>대안: tuple return type을 표명하기(assert)</b></summary>
+
+만약 [const assertions이 사용하기 어렵다면](https://github.com/babel/babel/issues/9800), 함수 return type을 표명(assert)하거나 정의할 수 있습니다.
+
+```tsx
+import { useState } from "react";
+
+export function useLoading() {
+  const [isLoading, setState] = useState(false);
+  const load = (aPromise: Promise<any>) => {
+    setState(true);
+    return aPromise.finally(() => setState(false));
+  };
+  return [isLoading, load] as [boolean, (aPromise: Promise<any>) => Promise<any>];
+}
+```
+
+많은 custom hooks을 작성한다면, 자동으로 tuples의 타입을 명시해주는 helper도 큰 도움이 될 수 있습니다.
+
+```tsx
+function tuplify<T extends any[]>(...elements: T) {
+  return elements;
+}
+
+function useArray() {
+  const numberValue = useRef(3).current;
+  const functionValue = useRef(() => {}).current;
+  return [numberValue, functionValue]; // type is (number | (() => void))[]
+}
+
+function useTuple() {
+  const numberValue = useRef(3).current;
+  const functionValue = useRef(() => {}).current;
+  return tuplify(numberValue, functionValue); // type is [number, () => void]
+}
+```
+
+</details>
+
+하지만 React team은 두개 이상의 값을 return하는 custom hook은 tuple 대신 적절한 object를 사용하는 것을 권장한다는 것에 주의하세요.
+
+#### 더 많은 Hooks + TypeScript 에 관한 읽을 거리:
+
+- https://medium.com/@jrwebdev/react-hooks-in-typescript-88fce7001d0d
+- https://fettblog.eu/typescript-react/hooks/#useref
+
+만약 React Hooks library를 작성하고 있다면, 사용자들이 사용할 수 있도록 types를 export 해야 한다는 것을 잊지 마세요.
+
+#### React Hooks + TypeScript Libraries 예시:
+
+- https://github.com/mweststrate/use-st8
+- https://github.com/palmerhq/the-platform
+- https://github.com/sw-yx/hooks
+
+[추가할 내용이 있나요? issue를 장성하세요!](https://github.com/typescript-cheatsheets/react/issues/new).
+
+<!--END-SECTION:hooks-->
+
+<!--START-SECTION:class-components-->
+
+#### Class Components
+
+TypeScript에서 `React.Component`는 generic type (aka `React.Component<PropType, StateType>`)입니다. 따라서 `React.Component`에 prop과 state type parameter를 전달해야 합니다. :
+
+```tsx
+type MyProps = {
+  // `interface`를 사용하는 것도 괜찮습니다
+  message: string;
+};
+type MyState = {
+  count: number; // 이런 식으로
+};
+class App extends React.Component<MyProps, MyState> {
+  state: MyState = {
+    // 더 나은 타입 추론을 위해 선택적으로 작성한 두 번째 annotation
+    count: 0,
+  };
+  render() {
+    return (
+      <div>
+        {this.props.message} {this.state.count}
+      </div>
+    );
+  }
+}
+```
+
+[TypeScript Playground 확인해 보기](https://www.typescriptlang.org/play/?jsx=2#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wFgAoCmATzCTgFlqAFHMAZzgF44BvCuHAD0QuAFd2wAHYBzOAANpMJFEzok8uME4oANuwhwIAawFwQSduxQykALjjsYUaTIDcFAL4fyNOo2oAZRgUZW4+MzQIMSkYBykxEAAjFTdhUV1gY3oYAAttLx80XRQrOABBMDA4JAAPZSkAE05kdBgAOgBhXEgpJFiAHiZWCA4AGgDg0KQAPgjyQSdphyYpsJ5+BcF0ozAYYAgpPUckKKa4FCkpCBD9w7hMaDgUmGUoOD96aUwVfrQkMyCKIxOJwAAMZm8ZiITRUAAoAJTzbZwIgwMRQKRwOGA7YDRrAABuM1xKN4eW07TAbHY7QsVhsSE8fAptKWynawNinlJcAGQgJxNxCJ8gh55E8QA)
+
+재사용하기 위해 이러한 types/interfaces를 export/import/extend 할 수 있다는 것을 잊지 마세요.
+
+<details>
+<summary><b>왜 <code>state</code>를 두 번 annotate 할까요?</b></summary>
+
+반드시 `state` class property에 annotate할 필요는 없지만, 이렇게 하면 `this.state`에 접근하거나 state를 초기화 할 때 더 나은 타입 추론을 가능하게 합니다.
+
+그 이유는 두 개의 annotation은 서로 다른 방식으로 동작하기 때문입니다. 두 번째 generic type parameter는 `this.setState()`가 올바르게 동작하도록 해줍니다. 왜냐하면 이 메소드는 base class에서 오기 때문입니다. 하지만 컴포넌트 내에서 `state`를 초기화 하는 것은 base implementation을 override하기 때문에 컴파일러에게 사실상 다른 작업을 하고 있지 않다는 것을 알려줘야 합니다. (=컴파일러에게 사실상 같은 작업을 하고 있다는 것을 알려줘야 합니다.)
+
+[여기서 @ferdaber의 의견을 확인해보세요](https://github.com/typescript-cheatsheets/react/issues/57).
+
+</details>
+
+<details>
+  <summary><b><code>readonly</code>는 필요 없다</b></summary>
+
+종종 샘플 코드에 props와 state가 변할 수 없다고 표시하기 위해 `readonly`를 포합하는 것을 볼 수 있습니다.
+
+```tsx
+type MyProps = {
+  readonly message: string;
+};
+type MyState = {
+  readonly count: number;
+};
+```
+
+`React.Component<P,S>`가 이미 props와 state가 변할 수 없다고 표시했기 때문에 추가적으로 readonly표시를 할 필요가 없습니다. ([PR 과 discussion을 확인하세요!](https://github.com/DefinitelyTyped/DefinitelyTyped/pull/26813))
+
+</details>
+
+**Class Methods**: 원래 하던데로 하되, 당신의 함수를 위한 모든 arguments는 type이 있어야 한다는 것만 기억하세요.
+
+```tsx
+class App extends React.Component<{ message: string }, { count: number }> {
+  state = { count: 0 };
+  render() {
+    return (
+      <div onClick={() => this.increment(1)}>
+        {this.props.message} {this.state.count}
+      </div>
+    );
+  }
+  increment = (amt: number) => {
+    // 이런 식으로
+    this.setState((state) => ({
+      count: state.count + amt,
+    }));
+  };
+}
+```
+
+[TypeScript Playground에서 확인해 보기](https://www.typescriptlang.org/play/?jsx=2#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wFgAoCtAGxQGc64BBMMOJADxiQDsATRsnQwAdAGFckHrxgAeAN5wQSBigDmSAFxw6MKMB5q4AXwA0cRWggBXHjG09rIAEZIoJgHwWKcHTBTccAC8FnBWtvZwAAwmANw+cET8bgAUAJTe5L6+RDDWUDxwKQnZcLJ8wABucBA8YtTAaADWQfLpwV4wABbAdCIGaETKdikAjGnGHiWlFt29ImA4YH3KqhrGsz19ugFIIuF2xtO+sgD0FZVTWdlp8ddH1wNDMsFFKCCRji5uGUFe8tNTqc4A0mkg4HM6NNISI6EgYABlfzcFI7QJ-IoA66lA6RNF7XFwADUcHeMGmxjStwSxjuxiAA)
+
+**Class Properties**: 만약 나중에 사용하기 위해 class properties를 선언한다면, `state`와 같이 선언하되 할당은 하지 안습니다.
+
+```tsx
+class App extends React.Component<{
+  message: string;
+}> {
+  pointer: number; // 이런 식으로
+  componentDidMount() {
+    this.pointer = 3;
+  }
+  render() {
+    return (
+      <div>
+        {this.props.message} and {this.pointer}
+      </div>
+    );
+  }
+}
+```
+
+[TypeScript Playground에서 확인해 보기](https://www.typescriptlang.org/play/?jsx=2#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wFgAoCtAGxQGc64BBMMOJADxiQDsATRsnQwAdAGFckHrxgAeAN4U4cEEgYoA5kgBccOjCjAeGgNwUAvgD44i8sshHuUXTwCuIAEZIoJuAHo-OGpgAGskOBgAC2A6JTg0SQhpHhgAEWA+AFkIVxSACgBKGzjlKJiRBxTvOABeOABmMzs4cziifm9C4ublIhhXKB44PJLlOFk+YAA3S1GxmzK6CpwwJdV1LXM4FH4F6KXKp1aesdk-SZnRgqblY-MgA)
+
+[추가할 내용이 있나요? issue를 생성하세요!](https://github.com/typescript-cheatsheets/react/issues/new).
+
+#### getDerivedStateFromProps 타입핑(Typing) 하기
+
+`getDerivedStateFromProps`를 사용하기 전에, [documentation](https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops)과 [You Probably Don't Need Derived State](https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html)를 읽어보세요. Derived State는 memoization을 설정한는 것을 도울 수 있는 hooks을 사용하여 구현될 수 있습니다.
+
+다음은 `getDerivedStateFromProps`를 annotate할 수 있는 몇 가지 방법입니다.
+
+1. 만약 derived state의 type을 명시적으로 설정했고, `getDerivedStateFromProps`의 return 값이 설정한 type을 준수하는지 알고싶은 경우
+
+```tsx
+class Comp extends React.Component<Props, State> {
+  static getDerivedStateFromProps(props: Props, state: State): Partial<State> | null {
+    //
+  }
+}
+```
+
+2. 함수의 return 값이 state를 결정하도록 하고싶은 경우
+
+```tsx
+class Comp extends React.Component<Props, ReturnType<typeof Comp["getDerivedStateFromProps"]>> {
+  static getDerivedStateFromProps(props: Props) {}
+}
+```
+
+3. 다른 state fields와 derived state 그리고 memoization을 원할 경우
+
+```tsx
+type CustomValue = any;
+interface Props {
+  propA: CustomValue;
+}
+interface DefinedState {
+  otherStateField: string;
+}
+type State = DefinedState & ReturnType<typeof transformPropsToState>;
+function transformPropsToState(props: Props) {
+  return {
+    savedPropA: props.propA, // save for memoization
+    derivedState: props.propA,
+  };
+}
+class Comp extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      otherStateField: "123",
+      ...transformPropsToState(props),
+    };
+  }
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (isEqual(props.propA, state.savedPropA)) return null;
+    return transformPropsToState(props);
+  }
+}
+```
+
+[TypeScript Playground에서 확인해 보기](https://www.typescriptlang.org/play/?jsx=2#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wFgAoUSWOYAZwFEBHAVxQBs5tcD2IATFHQAWAOnpJWHMuQowAnmCRwAwizoxcANQ4tlAXjgoAdvIDcFYMZhIomdMoAKOMHTgBvCnDhgXAQQAuVXVNEB12PQtyAF9La1t7NGUAESRMKyR+AGUYFBsPLzgIGGFbHLykADFgJHZ+II0oKwBzKNjyBSU4cvzDVPTjTJ7lADJEJBgWKGMAFUUkAB5OpAhMOBgoEzpMaBBnCFcZiGGAPijMFmMMYAhjdc3jbd39w+PcmwAKXwO6IJe6ACUBXI3iIk2mwO83joKAAbpkXoEfC46KJvmA-AAaOAAehxcBh8K40DgICQIAgwAAXnkbsZCt5+LZgPDsu8kEF0aj0X5CtE2hQ0OwhG4VLgwHAkAAPGzGfhuZDoGCiRxTJBi8C3JDWBb-bGnSFwNC3RosDDQL4ov4ooGeEFQugsJRQS0-AFRKHrYT0UQaCpwQx2z3eYqlKDDaq1epwABEAEYAEwAZhjmIZUNEmY2Wx2UD2KKOw1drgB6f5fMKfpgwDQcGaE1STVZEZw+Z+xd+cD1BPZQWGtvTwDWH3ozDY7A7aP82KrSF9cIR-gBQLBUzuxhY7HYHqhq4h2ceubbryLXPdFZiQA)
+
+<!--END-SECTION:class-components-->
