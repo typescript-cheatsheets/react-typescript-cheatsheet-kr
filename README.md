@@ -840,7 +840,7 @@ let el = <Greet age={3} />;
 <details>
 <summary>라이브러리 작성자를 위한<b><code>JSX.LibraryManagedAttributes</code> 뉘앙스</b></summary>
 
-위에서 소개된 구현은 앱 개발자들이 사용하는데 아무런 문제가 없습니다. 하지만 다른 사람들이 사용(consume)할 수 있도록 `GreetProps`를 export 하고은 경우도 있습니다. 여기서 `GreetProps`가 정의되는 방법이 문제가 됩니다. `age`는 꼭 필요하지 않을 때에도 `defaultProps`때문에 필수적인 props가 됩니다.
+위에서 소개된 구현은 앱 개발자들이 사용하는데 아무런 문제가 없습니다. 하지만 다른 사람들이 사용(consume)할 수 있도록 `GreetProps`를 export 하고싶은 경우도 있습니다. 여기서 `GreetProps`가 정의되는 방법이 문제가 됩니다. `age`는 꼭 필요하지 않을 때에도 `defaultProps`때문에 필수적인 props가 됩니다.
 
 [`GreetProps`는 당신의 컴포넌트를 위한 _내부적인_ 규칙(컴포넌트가 구현하는 것)이지, _외부적인_ 것이 아닙니다](https://github.com/typescript-cheatsheets/react/issues/66#issuecomment-453878710). 따라서 export를 위한 type을 따로 만들 거나, `JSX.LibraryManagedAttributes` utility를 사용할 수도 있습니다.
 
@@ -927,7 +927,7 @@ const el = <TestComponent name="foo" />;
 <details>
 <summary><b>TypeScript 2.9 and earlier</b></summary>
 
-TypeScript 2.9와 그 이존 버전에서는 이문제를 해결하는 방법이 다양합니다. 하지만 다음 방법이 여태까지 확인한 방법 중 가장 좋은 방법입니다.
+TypeScript 2.9와 그 이전 버전에서는 이문제를 해결하는 방법이 다양합니다. 하지만 다음 방법이 여태까지 확인한 방법 중 가장 좋은 방법입니다.
 
 ```ts
 type Props = Required<typeof MyComponent.defaultProps> & {
@@ -941,7 +941,7 @@ export class MyComponent extends React.Component<Props> {
 }
 ```
 
-이전에는 TypeScript의 `Partial type` 기능을 사용하는 것이 권장 사항이었는데, 이는 현재 인터페이스가 래핑된 인터페이스에에서 부분적인 버전을 충족한다는 것을 의미합니다. 이런 방버으로 type을 변경하지 않고 defaultProps를 확장할 수 있습니다.
+이전에는 TypeScript의 `Partial type` 기능을 사용하는 것이 권장 사항이었는데, 이는 현재 인터페이스가 래핑된 인터페이스에에서 부분적인 버전을 충족한다는 것을 의미합니다. 이런 방법으로 type을 변경하지 않고 defaultProps를 확장할 수 있습니다.
 
 ```ts
 interface IMyComponentProps {
